@@ -48,7 +48,9 @@ public:
     {
         return o.arr[i];
     }
-    /*Gets index IDs of rows according to certain rules*/
+    /*Gets index IDs of rows according to certain rules. iterates through all rows
+    note: complexity is O(n) where 'n' is the number of rows/offers
+    */
     vector<int> get_ids(map<string, string> in)
     {
         vector<int> ids;
@@ -73,11 +75,7 @@ public:
                     if(o.arr[i].id == stoi(in.at("id"))) ids.push_back(i);
                 }
             }
-        }
-        delete(&product_compare);
-        delete(&units_compare);
-        delete(&price_compare);
-        delete(&id_compare);
+        }        
         return ids;
     }
 };

@@ -5,7 +5,7 @@ Basic initalization values for the model
 */
 #include <string>
 using namespace std;
-const int cmps = 100; // num of cmps
+const int cmps = 10; // num of cmps
 const int emps_per_cmp = 100; // num of employees per cmp
 const double init_wealth = 100; // starting wealth for cmps, emps
 const double init_price = 1; // starting price for all products
