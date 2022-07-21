@@ -4,6 +4,8 @@
 offer object
 */
 #include <string>
+#include <vector>
+#include <map>
 #include "conf.h"
 using namespace std;
 struct row
@@ -42,8 +44,41 @@ public:
         o.insert_pos = 0;
     }
     /*get an element by index*/
-    row get(int i) {
+    row get(int i)
+    {
         return o.arr[i];
+    }
+    /*Gets index IDs of rows according to certain rules*/
+    vector<int> get_ids(map<string, string> in)
+    {
+        vector<int> ids;
+        bool product_compare = in.find("product") != in.end();
+        bool units_compare = in.find("units") != in.end();
+        bool price_compare = in.find("price") != in.end();
+        bool id_compare = in.find("id") != in.end();
+        if (product_compare || units_compare || price_compare || id_compare)
+        {
+            for (int i = 0; i < cmps; i++)
+            {
+                if(product_compare) {
+                    if(o.arr[i].product == in.at("product")) ids.push_back(i);
+                }
+                if(units_compare) {
+                    if(o.arr[i].units == stoi(in.at("units"))) ids.push_back(i);
+                }
+                if(price_compare) {
+                    if(o.arr[i].price == stoi(in.at("price"))) ids.push_back(i);
+                }
+                if(id_compare) {
+                    if(o.arr[i].id == stoi(in.at("id"))) ids.push_back(i);
+                }
+            }
+        }
+        delete(&product_compare);
+        delete(&units_compare);
+        delete(&price_compare);
+        delete(&id_compare);
+        return ids;
     }
 };
 #endif
