@@ -10,7 +10,7 @@ offer object
 using namespace std;
 struct row
 { // every row
-    string product;
+    string product = "";
     int units;
     double price;
     int id;
@@ -82,8 +82,10 @@ public:
     void print() {
         printf("id, product, price, units\n");
         for(int i = 0;i < cmps;i++) {
-            printf("%d, %s, %f, %d", o.arr[i].id, o.arr[i].product, o.arr[i].price, o.arr[i].units);
-            printf("\n");
+            cout << o.arr[i].id;
+            cout << "," << o.arr[i].product;
+            cout << "," << o.arr[i].price;
+            cout << "," << o.arr[i].units << endl;
         }
     }
 };

@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
 	// this function has multiple roles. Initialization, and economy iteration
 	o.add("test", 1,2,3);
 	cout << o.get_ids(map<string,string>{pair<string, string> {"product","test"}}).at(0) << endl;
+	o.print();
 }
 
 void init() {
