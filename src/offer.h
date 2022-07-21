@@ -78,5 +78,13 @@ public:
         }        
         return ids;
     }
+    /*prints out the offers*/
+    void print() {
+        printf("id, product, price, units\n");
+        for(int i = 0;i < cmps;i++) {
+            printf("%d, %s, %f, %d", o.arr[i].id, o.arr[i].product, o.arr[i].price, o.arr[i].units);
+            printf("\n");
+        }
+    }
 };
 #endif
