@@ -75,7 +75,7 @@ public:
                     if(o.arr[i].id == stoi(in.at("id"))) ids.push_back(i);
                 }
             }
-        }        
+        }
         return ids;
     }
     /*prints out the offers*/
