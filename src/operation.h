@@ -35,6 +35,42 @@ public:
         in->previous_price = price;
         o->add(in->product, price, unitsToProduce, in->id);
     }
+    /*
+    demand products
+    */
+    static void demand(cmp *in, offer *o)
+    {
+        if(in->previous_units_produced * luxury_dependency <= in->raw_materials && in->product == luxury_product_name) {
+            pair<double, int> raw_materials_purchase = operation::buy(o,"food",in->wealth);
+            in->wealth = in->wealth - raw_materials_purchase.first;
+            in->raw_materials = in->raw_materials + raw_materials_purchase.second;
+        }
+        // TODO: Emp Demand
+    }
+    /*
+    collect revenue, salary update, price_multiplier update
+    */
+    static void revenue(cmp *in, offer *o)
+    {
+        // TODO: Revenue calc
+    }
+    /*
+    ts : to spend
+    utp : units to purchase
+    function: find suitable offer and buy 'utp' units with 'ts' money
+    */
+    static pair<double, int> buy(offer *o, string product, int utp, double ts)
+    {
+        // TODO: Algorithm
+    }
+    /*
+    ts: to spend
+    function: find optimal offer and spend 'ts' on it
+    */
+    static pair<double, int> buy(offer *o, string product, double ts)
+    {
+        // TODO: Algorithm
+    }
 };
 
 #endif

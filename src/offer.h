@@ -62,26 +62,36 @@ public:
         {
             for (int i = 0; i < cmps; i++)
             {
-                if(product_compare) {
-                    if(o.arr[i].product == in.at("product")) ids.push_back(i);
+                if (product_compare)
+                {
+                    if (o.arr[i].product == in.at("product"))
+                        ids.push_back(i);
                 }
-                if(units_compare) {
-                    if(o.arr[i].units == stoi(in.at("units"))) ids.push_back(i);
+                if (units_compare)
+                {
+                    if (o.arr[i].units == stoi(in.at("units")))
+                        ids.push_back(i);
                 }
-                if(price_compare) {
-                    if(o.arr[i].price == stoi(in.at("price"))) ids.push_back(i);
+                if (price_compare)
+                {
+                    if (o.arr[i].price == stoi(in.at("price")))
+                        ids.push_back(i);
                 }
-                if(id_compare) {
-                    if(o.arr[i].id == stoi(in.at("id"))) ids.push_back(i);
+                if (id_compare)
+                {
+                    if (o.arr[i].id == stoi(in.at("id")))
+                        ids.push_back(i);
                 }
             }
         }
         return ids;
     }
     /*prints out the offers*/
-    void print() {
+    void print()
+    {
         printf("id, product, price, units\n");
-        for(int i = 0;i < cmps;i++) {
+        for (int i = 0; i < cmps; i++)
+        {
             cout << o.arr[i].id;
             cout << "," << o.arr[i].product;
             cout << "," << o.arr[i].price;
