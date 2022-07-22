@@ -26,5 +26,6 @@ int main(int argc, char *argv[])
 		{
 			operation::revenue(&companies[i], &o);
 		}
+		o.clear();
 	}
 }
