@@ -27,7 +27,7 @@ public:
             }
             else
             {
-                in->raw_materials = unitsToProduce * luxury_dependency;
+                in->raw_materials = in->raw_materials - (unitsToProduce * luxury_dependency);
             }
         }
         double price = in->previous_price * in->price_multiplier;
@@ -58,6 +58,7 @@ public:
     ts : to spend
     utp : units to purchase
     function: find suitable offer and buy 'utp' units with 'ts' money
+    out: pair. first: spent money, second: bought units
     */
     static pair<double, int> buy(offer *o, string product, int utp, double ts)
     {
@@ -66,6 +67,7 @@ public:
     /*
     ts: to spend
     function: find optimal offer and spend 'ts' on it
+    out: pair. first: spent money, second: bought units
     */
     static pair<double, int> buy(offer *o, string product, double ts)
     {
