@@ -20,7 +20,10 @@ int main(int argc, char *argv[])
 		}
 		for (int i = 0; i < cmps; i++)
 		{
-			operation::demand(&companies[i], &o);
+			operation::demand(&companies[i], &o, &gen);
+		}
+		for(int i = 0;i < cmps;i++) {
+			for(int p = 0;p < emps_per_cmp;p++) cout << companies[i].emps[p].fear << " , ";
 		}
 		for (int i = 0; i < cmps; i++)
 		{

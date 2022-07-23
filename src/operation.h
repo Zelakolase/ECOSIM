@@ -38,14 +38,41 @@ public:
     /*
     demand products
     */
-    static void demand(cmp *in, offer *o)
+    static void demand(cmp *in, offer *o, default_random_engine *gen)
     {
         if(in->previous_units_produced * luxury_dependency <= in->raw_materials && in->product == luxury_product_name) {
             pair<double, int> raw_materials_purchase = operation::buy(o,"food",in->wealth);
             in->wealth = in->wealth - raw_materials_purchase.first;
             in->raw_materials = in->raw_materials + raw_materials_purchase.second;
         }
-        // TODO: Emp Demand
+        for(int i = 0;i < emps_per_cmp;i++) {
+            double energy = 0;
+            uniform_real_distribution<double> food_rand(origin_food_need, bound_food_need);
+            pair<double, int> food_purchase = operation::buy(o, "food",food_rand((*gen)), in->emps[i].wealth);
+            in->emps[i].wealth = in->emps[i].wealth - food_purchase.first;
+            energy = energy + (food_purchase.second * food_energy_multiplier);
+            if(food_purchase.first >= in->emps[i].last_salary) {
+                // Nothing goes to rest
+            }else {
+                double rm = in->emps[i].last_salary - food_purchase.first;
+                pair<double, int> luxury_purchase = operation::buy(o, luxury_product_name, (1 - in->emps[i].y) * rm);
+                in->emps[i].wealth = in->emps[i].wealth - luxury_purchase.first;
+                rm = rm - luxury_purchase.first;
+                energy = energy + (luxury_purchase.second * luxury_energy_multiplier);
+                in->emps[i].wealth = in->emps[i].wealth + rm;
+            }
+            in->emps[i].energy = in->emps[i].energy + energy;
+            double FcpLastSalary = food_purchase.first / in->emps[i].last_salary;
+            if(FcpLastSalary > fear_sensitivity_bound) {
+                // Y factor increase
+                in->emps[i].y = in->emps[i].y + (in->emps[i].y * (FcpLastSalary * in->emps[i].fear)); 
+            }
+            if(FcpLastSalary <= fear_sensitivity_origin) {
+                // Y factor decrease
+                in->emps[i].y = in->emps[i].y - (in->emps[i].y * (FcpLastSalary * in->emps[i].fear)); 
+            }
+            in->emps[i].last_salary = 0;
+        }
     }
     /*
     collect revenue, salary update, price_multiplier update
