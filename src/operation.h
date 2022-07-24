@@ -4,6 +4,7 @@
 #include "emp.h"
 #include "offer.h"
 #include <iostream>
+#include <random>
 class operation
 {
 private:
