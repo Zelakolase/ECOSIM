@@ -119,7 +119,7 @@ public:
             }
             out.second = max_purchaseable_units;
             out.first = max_purchaseable_units * o->o.arr[highest_index].price;
-            o->o.arr[highest_index].units -= max_purchaseable_units;
+            o->modify_units(highest_index, o->o.arr[highest_index].units - max_purchaseable_units);
         }
         return out;
     }
