@@ -99,7 +99,29 @@ public:
     */
     static pair<double, int> buy(offer *o, string product, double ts)
     {
-        // TODO: Algorithm
+        pair<double, int> out;
+        if(o->get_highest_units() == -1 || o->get_highest_units() == 0) {
+            for(int i = 0;i < cmps;i++) {
+                o->modify_units(i, -1);
+            }
+        }else {
+            int highest_index = 0;
+            int max_purchaseable_units = 0;
+            for(int i = 0;i < cmps;i++) {
+                if(o->o.arr[i].units > 0) {
+                    int temp = ts/o->o.arr[i].price;
+                    int purchaseable_units = temp > o->o.arr[i].units ? o->o.arr[i].units : temp;
+                    if(purchaseable_units > max_purchaseable_units) {
+                        max_purchaseable_units = purchaseable_units;
+                        highest_index = i;
+                    }
+                }
+            }
+            out.second = max_purchaseable_units;
+            out.first = max_purchaseable_units * o->o.arr[highest_index].price;
+            o->o.arr[highest_index].units -= max_purchaseable_units;
+        }
+        return out;
     }
 };
 

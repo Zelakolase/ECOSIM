@@ -20,14 +20,11 @@ struct offers
     row arr[cmps];
     int insert_pos = 0;
     int highest_units = 0;
-    bool MTOHUs = false; // More than one highest unit? [0,1,2,2] = true, [0,1,2,3] = false
 };
 class offer
 {
-private:
-    offers o;
-
 public:
+offers o;
     /*Adds one row to the end of array*/
     void add(string product, double price, int units, int id)
     {
@@ -38,11 +35,6 @@ public:
             id};
         o.insert_pos++;
         if(o.highest_units < units) o.highest_units = units;
-        if(o.highest_units == units) {
-            o.MTOHUs = true;
-        }else {
-            o.MTOHUs = false;
-        }
     }
     /*clear all elements
     IMPORTANT NOTE: We don't have to clear all elements. we just zero the insert position so we can overwrite on it. this is a performance optimization over mem space.
@@ -98,15 +90,11 @@ public:
     void modify_units(int id, int units) {
         int temp_arr = o.arr[id].units;
         o.arr[id].units = units;
-        if(o.MTOHUs) {
         int temp_highestunits = 0;
         for(int i = 0;i < cmps;i++) {
             if(temp_highestunits < o.arr[i].units) temp_highestunits = o.arr[i].units;
-        }
         o.highest_units = temp_highestunits;
-        }else {
-            if(o.highest_units == temp_arr) o.highest_units = units;
-        }
+    }
     }
     /*prints out the offers*/
     void print()
@@ -120,5 +108,6 @@ public:
             cout << "," << o.arr[i].units << endl;
         }
     }
+    int get_highest_units() {return o.highest_units;}
 };
 #endif
