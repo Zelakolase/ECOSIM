@@ -124,5 +124,4 @@ public:
         return out;
     }
 };
-
 #endif
