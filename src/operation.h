@@ -41,20 +41,25 @@ public:
     */
     static void demand(cmp *in, offer *o, default_random_engine *gen)
     {
-        if(in->previous_units_produced * luxury_dependency <= in->raw_materials && in->product == luxury_product_name) {
-            pair<double, int> raw_materials_purchase = operation::buy(o,"food",in->wealth);
+        if (in->previous_units_produced * luxury_dependency <= in->raw_materials && in->product == luxury_product_name)
+        {
+            pair<double, int> raw_materials_purchase = operation::buy(o, "food", in->wealth);
             in->wealth = in->wealth - raw_materials_purchase.first;
             in->raw_materials = in->raw_materials + raw_materials_purchase.second;
         }
-        for(int i = 0;i < emps_per_cmp;i++) {
+        for (int i = 0; i < emps_per_cmp; i++)
+        {
             double energy = 0;
             uniform_real_distribution<double> food_rand(origin_food_need, bound_food_need);
-            pair<double, int> food_purchase = operation::buy(o, "food",food_rand((*gen)), in->emps[i].wealth);
+            pair<double, int> food_purchase = operation::buy(o, "food", food_rand((*gen)), in->emps[i].wealth);
             in->emps[i].wealth = in->emps[i].wealth - food_purchase.first;
             energy = energy + (food_purchase.second * food_energy_multiplier);
-            if(food_purchase.first >= in->emps[i].last_salary) {
+            if (food_purchase.first >= in->emps[i].last_salary)
+            {
                 // Nothing goes to rest
-            }else {
+            }
+            else
+            {
                 double rm = in->emps[i].last_salary - food_purchase.first;
                 pair<double, int> luxury_purchase = operation::buy(o, luxury_product_name, (1 - in->emps[i].y) * rm);
                 in->emps[i].wealth = in->emps[i].wealth - luxury_purchase.first;
@@ -64,13 +69,15 @@ public:
             }
             in->emps[i].energy = in->emps[i].energy + energy;
             double FcpLastSalary = food_purchase.first / in->emps[i].last_salary;
-            if(FcpLastSalary > fear_sensitivity_bound) {
+            if (FcpLastSalary > fear_sensitivity_bound)
+            {
                 // Y factor increase
-                in->emps[i].y = in->emps[i].y + (in->emps[i].y * (FcpLastSalary * in->emps[i].fear)); 
+                in->emps[i].y = in->emps[i].y + (in->emps[i].y * (FcpLastSalary * in->emps[i].fear));
             }
-            if(FcpLastSalary <= fear_sensitivity_origin) {
+            if (FcpLastSalary <= fear_sensitivity_origin)
+            {
                 // Y factor decrease
-                in->emps[i].y = in->emps[i].y - (in->emps[i].y * (FcpLastSalary * in->emps[i].fear)); 
+                in->emps[i].y = in->emps[i].y - (in->emps[i].y * (FcpLastSalary * in->emps[i].fear));
             }
             in->emps[i].last_salary = 0;
         }
@@ -90,7 +97,51 @@ public:
     */
     static pair<double, int> buy(offer *o, string product, int utp, double ts)
     {
-        // TODO: Algorithm
+        pair<double, int> out;
+        if (o->get_highest_units() == 0)
+        {
+            for (int i = 0; i < cmps; i++)
+            {
+                o->modify_units(i, -1);
+            }
+            out.first = 0;
+            out.second = 0;
+        }
+        else
+        {
+            int optimal_index = 0;
+            int optimal_units = 0;
+            for (int i = 0; i < cmps; i++)
+            {
+                int MPU = ts / o->get(i).price; // Max Purchaseable Units
+                MPU = MPU > o->get(i).units ? o->get(i).units : MPU;
+                if (MPU > optimal_units)
+                {
+                    optimal_index = i;
+                    optimal_units = MPU;
+                }
+            }
+            if (optimal_units == 0)
+            {
+                out = buy(o, product, ts);
+            }
+            else if (optimal_units >= utp)
+            {
+                o->modify_units(optimal_index, o->get(optimal_index).units - utp);
+                out.first = utp * o->get(optimal_index).price;
+                out.second = utp;
+            }
+            else if (optimal_units < utp)
+            {
+                // TODO (2): Purchase until UnitsToPurchase is satisfied OR ToSpend is reaches
+                int unitspurchased = 0;
+                double spent = 0;
+                // HERE: increase unitspurchased and spent. a loop that checks TODO(2)
+                out.first = spent;
+                out.second = unitspurchased;
+            }
+        }
+        return out;
     }
     /*
     ts: to spend
@@ -100,26 +151,37 @@ public:
     static pair<double, int> buy(offer *o, string product, double ts)
     {
         pair<double, int> out;
-        if(o->get_highest_units() == -1 || o->get_highest_units() == 0) {
-            for(int i = 0;i < cmps;i++) {
+        if (o->get_highest_units() == 0)
+        {
+            for (int i = 0; i < cmps; i++)
+            {
                 o->modify_units(i, -1);
             }
-        }else {
+            out.first = 0;
+            out.second = 0;
+        }
+        else
+        {
             int highest_index = 0;
             int max_purchaseable_units = 0;
-            for(int i = 0;i < cmps;i++) {
-                if(o->o.arr[i].units > 0) {
-                    int temp = ts/o->o.arr[i].price;
-                    int purchaseable_units = temp > o->o.arr[i].units ? o->o.arr[i].units : temp;
-                    if(purchaseable_units > max_purchaseable_units) {
+            for (int i = 0; i < cmps; i++)
+            {
+                row temp_row = o->get(i);
+                if (temp_row.units > 0)
+                {
+                    int temp = ts / temp_row.price;
+                    int purchaseable_units = temp > temp_row.units ? temp_row.units : temp;
+                    if (purchaseable_units > max_purchaseable_units)
+                    {
                         max_purchaseable_units = purchaseable_units;
                         highest_index = i;
                     }
                 }
             }
             out.second = max_purchaseable_units;
-            out.first = max_purchaseable_units * o->o.arr[highest_index].price;
-            o->modify_units(highest_index, o->o.arr[highest_index].units - max_purchaseable_units);
+            row final_row = o->get(highest_index);
+            out.first = max_purchaseable_units * final_row.price;
+            o->modify_units(highest_index, final_row.units - max_purchaseable_units);
         }
         return out;
     }

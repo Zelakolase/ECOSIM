@@ -23,8 +23,9 @@ struct offers
 };
 class offer
 {
+    private:
+    offers o;
 public:
-offers o;
     /*Adds one row to the end of array*/
     void add(string product, double price, int units, int id)
     {
@@ -93,8 +94,9 @@ offers o;
         int temp_highestunits = 0;
         for(int i = 0;i < cmps;i++) {
             if(temp_highestunits < o.arr[i].units) temp_highestunits = o.arr[i].units;
-        o.highest_units = temp_highestunits;
     }
+            o.highest_units = temp_highestunits;
+
     }
     /*prints out the offers*/
     void print()

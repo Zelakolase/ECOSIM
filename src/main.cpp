@@ -18,10 +18,12 @@ int main(int argc, char *argv[])
 		{
 			operation::work(&companies[i], &o);
 		}
+		o.print();
 		for (int i = 0; i < cmps; i++)
 		{
 			operation::demand(&companies[i], &o, &gen);
 		}
+		o.print();
 		for (int i = 0; i < cmps; i++)
 		{
 			operation::revenue(&companies[i], &o);
