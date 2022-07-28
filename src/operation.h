@@ -99,7 +99,6 @@ public:
             cmp_offer.units = 0;
         double revenue = cmp_offer.price * (in->previous_units_produced - cmp_offer.units);
         revenue = revenue - (revenue * taxrate);
-        uniform_real_distribution<double> sm(0.007, 0.02 + in->greed_multiplier);
         if(revenue <= emps_per_cmp * in->salary) {
             in->wealth = in->wealth + revenue;
         }
@@ -107,7 +106,7 @@ public:
         {
             revenue = in->wealth;
             INS = true;
-            in->salary = in->salary - (in->salary * 0.005);
+            in->salary = in->salary - (in->salary * 0.001);
         }
         revenue = revenue - (emps_per_cmp * in->salary);
         for (int i = 0; i < emps_per_cmp; i++)
@@ -120,8 +119,8 @@ public:
         else if (revenue > 0)
             in->wealth = in->wealth + revenue;
 
-        uniform_real_distribution<double> pm(in->greed_multiplier, in->greed_multiplier);
-        uniform_real_distribution<double> pm2(0.5, 1 - in->greed_multiplier);
+        uniform_real_distribution<double> pm(0.001, in->greed_multiplier - 0.1);
+        uniform_real_distribution<double> pm2(0.01, 0.75 - in->greed_multiplier);
         if (in->pmi)
             in->price_multiplier = in->price_multiplier + (pm(*gen));
         else if (QIN)
@@ -137,12 +136,12 @@ public:
             uniform_real_distribution<double> roulette(0.0, 1.0);
             if (roulette(*gen) < in->greed_multiplier)
             {
-                uniform_real_distribution<double> sm(0.01,in->greed_multiplier);
+                uniform_real_distribution<double> sm(0.001,in->greed_multiplier/2);
                 in->salary = in->salary - (in->salary * sm(*gen));
             }
             else
             {
-                uniform_real_distribution<double> sm2(0.01, 0.2);
+                uniform_real_distribution<double> sm2(0.01, 0.35);
                 in->salary = in->salary + (sm2(*gen) * in->salary);
             }
         }
