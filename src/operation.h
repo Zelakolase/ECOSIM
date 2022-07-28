@@ -107,7 +107,7 @@ public:
         {
             revenue = in->wealth;
             INS = true;
-            in->salary = in->salary - (in->salary * sm(*gen));
+            in->salary = in->salary - (in->salary * 0.005);
         }
         revenue = revenue - (emps_per_cmp * in->salary);
         for (int i = 0; i < emps_per_cmp; i++)
@@ -120,34 +120,29 @@ public:
         else if (revenue > 0)
             in->wealth = in->wealth + revenue;
 
-        uniform_real_distribution<double> pm(0.01 + in->greed_multiplier, 0.1 + in->greed_multiplier);
-        uniform_real_distribution<double> pm2(0.01, 0.05 - in->greed_multiplier);
+        uniform_real_distribution<double> pm(in->greed_multiplier, in->greed_multiplier);
+        uniform_real_distribution<double> pm2(0.5, 1 - in->greed_multiplier);
         if (in->pmi)
             in->price_multiplier = in->price_multiplier + (pm(*gen));
         else if (QIN)
             in->price_multiplier = in->price_multiplier + (pm(*gen));
+        else if(INS)
+            in->price_multiplier = in->price_multiplier + (pm(*gen));
         if (RPD)
             in->price_multiplier = in->price_multiplier - (pm2(*gen));
-        if (!in->pmi && !QIN && !RPD)
-        {
-            uniform_real_distribution<double> roulette(0.0, 1.0);
-            if (roulette(*gen) < 0.1 + in->greed_multiplier)
-            {
-                uniform_real_distribution<double> pm3(0.07, 0.1+in->greed_multiplier);
-                in->price_multiplier = in->price_multiplier + (pm3(*gen));
-            }
-        }
+        if(in->price_multiplier <= 0) in->price_multiplier = (((int) in->price_multiplier) - in->price_multiplier);
 
         if (!INS)
         {
             uniform_real_distribution<double> roulette(0.0, 1.0);
-            if (roulette(*gen) < in->greed_multiplier + 0.1)
+            if (roulette(*gen) < in->greed_multiplier)
             {
-                in->salary = in->salary - (in->salary * (sm(*gen) - 0.01));
+                uniform_real_distribution<double> sm(0.01,in->greed_multiplier);
+                in->salary = in->salary - (in->salary * sm(*gen));
             }
             else
             {
-                uniform_real_distribution<double> sm2(0.07, 0.15);
+                uniform_real_distribution<double> sm2(0.01, 0.2);
                 in->salary = in->salary + (sm2(*gen) * in->salary);
             }
         }

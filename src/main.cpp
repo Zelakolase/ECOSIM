@@ -15,7 +15,6 @@ static default_random_engine gen = default_random_engine();
 int main(int argc, char *argv[])
 {
 	init::initialize(companies, &gen);
-	cout <<"inflation over time" << endl;
 	for (int i = 0; i < iterations; i++)
 	{
 		for (int i = 0; i < cmps; i++)
@@ -37,8 +36,8 @@ int main(int argc, char *argv[])
 		double average_Salary = 0;
 		for(int a = 0;a < cmps; a++) {
 			// if (companies[a].price_multiplier > 1.5) companies[a].price_multiplier -= 0.4;
-			average_Salary += companies[i].salary;
-		}
+			average_Salary += companies[a].previous_units_produced;
+		}			
 		average_Salary /= cmps;
 		cout << average_Salary << endl;
 	}
