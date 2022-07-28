@@ -18,16 +18,20 @@ int main(int argc, char *argv[])
 		{
 			operation::work(&companies[i], &o);
 		}
-		o.print();
 		for (int i = 0; i < cmps; i++)
 		{
 			operation::demand(&companies[i], &o, &gen);
 		}
-		o.print();
 		for (int i = 0; i < cmps; i++)
 		{
-			operation::revenue(&companies[i], &o);
+			operation::revenue(&companies[i], &o, 0.0, &gen);
 		}
 		o.clear();
+		double average_Salary = 0;
+		for(int a = 0;a < cmps; a++) {
+			for(int b = 0;b < emps_per_cmp;b++) average_Salary = average_Salary + companies[a].emps[b].last_salary;
+		}
+		average_Salary = average_Salary / (cmps * emps_per_cmp);
+		cout << average_Salary << endl;
 	}
 }

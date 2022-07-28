@@ -85,9 +85,50 @@ public:
     /*
     collect revenue, salary update, price_multiplier update
     */
-    static void revenue(cmp *in, offer *o)
+    static void revenue(cmp *in, offer *o, double taxrate, default_random_engine *gen)
     {
-        // TODO: Revenue calc
+        row cmp_offer = o->get(in->id);
+        bool RPD = cmp_offer.units > 0;
+        bool QIN = cmp_offer.units == -1;
+        bool INS = false;
+        if(QIN) cmp_offer.units = 0;
+        double revenue = cmp_offer.price * (in->previous_units_produced * cmp_offer.units);
+        revenue = revenue - (revenue * taxrate);
+        if(revenue <= emps_per_cmp * in->salary) {
+            in->wealth = in->wealth + revenue;
+            revenue = in->wealth;
+            INS = true;
+        }
+        revenue = revenue - (emps_per_cmp * in->salary);
+        for(int i = 0;i < emps_per_cmp;i++) {
+            in->emps[i].last_salary = in->salary;
+            in->emps[i].wealth = in->emps[i].wealth + in->salary;
+        }
+        if(INS) in->wealth = revenue;
+        else if(revenue > 0) in->wealth = in->wealth + revenue;
+        uniform_real_distribution<double> pm(0.07+in->greed_multiplier, 0.25+in->greed_multiplier);
+        uniform_real_distribution<double> pm2(0.07, 0.25-in->greed_multiplier);
+        if(in->pmi) in->price_multiplier = in->price_multiplier + (in->price_multiplier * pm(*gen));
+        if(QIN) in->price_multiplier = in->price_multiplier + (in->price_multiplier * pm(*gen));
+        else if(RPD) in->price_multiplier = in->price_multiplier + (in->price_multiplier * pm2(*gen));
+        else {
+            uniform_real_distribution<double> roulette(0.0,1.0);
+            if(roulette(*gen) < 0.2+in->greed_multiplier) {
+                uniform_real_distribution<double> pm3(0.1,0.25+ in->greed_multiplier);
+                in->price_multiplier = in->price_multiplier + (in->price_multiplier * pm3(*gen));
+            }
+        }
+        uniform_real_distribution<double> sm(0.05, 0.2+ in->greed_multiplier);
+        if(INS) in->salary = in->salary - (in->salary * sm(*gen));
+        else {
+            uniform_real_distribution<double> roulette(0.0,1.0);
+            if(roulette(*gen) < 0.5+ in->greed_multiplier + 0.25) {
+                in->salary = in->salary - (in->salary * (sm(*gen)-0.05));
+            }else if(roulette(*gen) < 0.5 + (0.25 - in->greed_multiplier)) {
+                uniform_real_distribution<double> sm2(0.05, 0.2);
+                in->salary = in->salary + (sm2(*gen) * in->salary);
+            }
+        }
     }
     /*
     ts : to spend
