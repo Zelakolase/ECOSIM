@@ -99,7 +99,7 @@ public:
             cmp_offer.units = 0;
         double revenue = cmp_offer.price * (in->previous_units_produced - cmp_offer.units);
         revenue = revenue - (revenue * taxrate);
-        uniform_real_distribution<double> sm(0.001, 0.02 + in->greed_multiplier);
+        uniform_real_distribution<double> sm(0.007, 0.02 + in->greed_multiplier);
         if(revenue <= emps_per_cmp * in->salary) {
             in->wealth = in->wealth + revenue;
         }

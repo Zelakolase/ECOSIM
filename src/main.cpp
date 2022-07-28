@@ -21,14 +21,17 @@ int main(int argc, char *argv[])
 		for (int i = 0; i < cmps; i++)
 		{
 			operation::work(&companies[i], &o);
+			gen.seed((myclock::now() - beginning).count());
 		}
 		for (int i = 0; i < cmps; i++)
 		{
 			operation::demand(&companies[i], &o, &gen);
+			gen.seed((myclock::now() - beginning).count());
 		}
 		for (int i = 0; i < cmps; i++)
 		{
 			operation::revenue(&companies[i], &o, 0.0, &gen);
+			gen.seed((myclock::now() - beginning).count());
 		}
 		o.clear();
 		double average_Salary = 0;
@@ -38,6 +41,5 @@ int main(int argc, char *argv[])
 		}
 		average_Salary /= cmps;
 		cout << average_Salary << endl;
-		gen.seed((myclock::now() - beginning).count());
 	}
 }
