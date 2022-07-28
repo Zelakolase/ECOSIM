@@ -51,7 +51,7 @@ public:
         {
             double energy = 0;
             uniform_real_distribution<double> food_rand(origin_food_need, bound_food_need);
-            pair<double, int> food_purchase = operation::buy(o, "food", food_rand((*gen)), in->emps[i].wealth);
+            pair<double, int> food_purchase = operation::buy(o, "food", food_rand((*gen)), in->emps[i].wealth, true);
             in->emps[i].wealth = in->emps[i].wealth - food_purchase.first;
             energy = energy + (food_purchase.second * food_energy_multiplier);
             if (food_purchase.first >= in->emps[i].last_salary)
@@ -95,7 +95,7 @@ public:
     function: find suitable offer and buy 'utp' units with 'ts' money
     out: pair. first: spent money, second: bought units
     */
-    static pair<double, int> buy(offer *o, string product, int utp, double ts)
+    static pair<double, int> buy(offer *o, string product, int utp, double ts, bool rec)
     {
         pair<double, int> out;
         if (o->get_highest_units() == 0)
@@ -133,12 +133,36 @@ public:
             }
             else if (optimal_units < utp)
             {
-                // TODO (2): Purchase until UnitsToPurchase is satisfied OR ToSpend is reaches
                 int unitspurchased = 0;
                 double spent = 0;
-                // HERE: increase unitspurchased and spent. a loop that checks TODO(2)
-                out.first = spent;
-                out.second = unitspurchased;
+                if (rec)
+                {
+                    for (int i = 0; i < cmps; i++)
+                    {
+                        if (utp != 0 && ts != 0)
+                        {
+                            pair<double, int> temp = buy(o, product, utp, ts, false);
+                            if(temp.second != 0 && temp.first != 0) {
+                            utp = utp - temp.second;
+                            ts = ts - temp.first;
+                            unitspurchased = unitspurchased + temp.second;
+                            spent = spent + temp.first;
+                            }else {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    out.first = spent;
+                    out.second = unitspurchased;
+                }
+                else
+                {
+                    out = buy(o, product, ts);
+                }
             }
         }
         return out;
