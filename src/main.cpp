@@ -5,9 +5,12 @@
 #include "cmp.h"
 #include "operation.h"
 #include "init.h"
+#include <chrono>
 using namespace std;
 offer o;
 cmp companies[cmps];
+  typedef std::chrono::high_resolution_clock myclock;
+  myclock::time_point beginning = myclock::now();
 static default_random_engine gen = default_random_engine();
 int main(int argc, char *argv[])
 {
@@ -35,5 +38,6 @@ int main(int argc, char *argv[])
 		}
 		average_Salary /= cmps;
 		cout << average_Salary << endl;
+		gen.seed((myclock::now() - beginning).count());
 	}
 }

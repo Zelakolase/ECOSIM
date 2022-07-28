@@ -120,20 +120,20 @@ public:
             in->wealth = in->wealth + revenue;
 
         uniform_real_distribution<double> pm(0.01 + in->greed_multiplier, 0.02 + in->greed_multiplier);
-        uniform_real_distribution<double> pm2(0.01, 0.06 - in->greed_multiplier);
+        uniform_real_distribution<double> pm2(0.01, 0.05 - in->greed_multiplier);
         if (in->pmi)
-            in->price_multiplier = in->price_multiplier + ( pm(*gen));
+            in->price_multiplier = in->price_multiplier + (pm(*gen));
         else if (QIN)
-            in->price_multiplier = in->price_multiplier + ( pm(*gen));
+            in->price_multiplier = in->price_multiplier + (pm(*gen));
         if (RPD)
-            in->price_multiplier = in->price_multiplier - ( pm2(*gen));
+            in->price_multiplier = in->price_multiplier - (pm2(*gen));
         if (!in->pmi && !QIN && !RPD)
         {
             uniform_real_distribution<double> roulette(0.0, 1.0);
             if (roulette(*gen) < 0.1 + in->greed_multiplier)
             {
                 uniform_real_distribution<double> pm3(0.01, 0.02+in->greed_multiplier);
-                in->price_multiplier = in->price_multiplier + ( pm3(*gen));
+                in->price_multiplier = in->price_multiplier + (pm3(*gen));
             }
         }
 
