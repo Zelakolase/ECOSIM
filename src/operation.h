@@ -16,7 +16,8 @@ public:
         int unitsToProduce = 0;
         for (int i = 0; i < emps_per_cmp; i++)
         {
-            unitsToProduce = unitsToProduce + in->emps->energy;
+            unitsToProduce = unitsToProduce + in->emps[i].energy;
+            in->emps[i].energy = 0;
         }
         if (in->product == luxury_product_name)
         {
@@ -98,7 +99,7 @@ public:
             cmp_offer.units = 0;
         double revenue = cmp_offer.price * (in->previous_units_produced - cmp_offer.units);
         revenue = revenue - (revenue * taxrate);
-        uniform_real_distribution<double> sm(0.01, 0.07 + in->greed_multiplier);
+        uniform_real_distribution<double> sm(0.001, 0.02 + in->greed_multiplier);
         if(revenue <= emps_per_cmp * in->salary) {
             in->wealth = in->wealth + revenue;
         }
@@ -140,7 +141,7 @@ public:
         if (!INS)
         {
             uniform_real_distribution<double> roulette(0.0, 1.0);
-            if (roulette(*gen) < in->greed_multiplier + 0.25)
+            if (roulette(*gen) < in->greed_multiplier + 0.1)
             {
                 in->salary = in->salary - (in->salary * (sm(*gen) - 0.01));
             }

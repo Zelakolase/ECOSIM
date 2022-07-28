@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 		double average_Salary = 0;
 		for(int a = 0;a < cmps; a++) {
 			// if (companies[a].price_multiplier > 1.5) companies[a].price_multiplier -= 0.4;
-			average_Salary += (companies[a].price_multiplier-1)*100;
+			average_Salary += companies[i].salary;
 		}
 		average_Salary /= cmps;
 		cout << average_Salary << endl;
