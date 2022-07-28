@@ -119,7 +119,7 @@ public:
         else if (revenue > 0)
             in->wealth = in->wealth + revenue;
 
-        uniform_real_distribution<double> pm(0.01 + in->greed_multiplier, 0.02 + in->greed_multiplier);
+        uniform_real_distribution<double> pm(0.01 + in->greed_multiplier, 0.1 + in->greed_multiplier);
         uniform_real_distribution<double> pm2(0.01, 0.05 - in->greed_multiplier);
         if (in->pmi)
             in->price_multiplier = in->price_multiplier + (pm(*gen));
@@ -132,7 +132,7 @@ public:
             uniform_real_distribution<double> roulette(0.0, 1.0);
             if (roulette(*gen) < 0.1 + in->greed_multiplier)
             {
-                uniform_real_distribution<double> pm3(0.01, 0.02+in->greed_multiplier);
+                uniform_real_distribution<double> pm3(0.07, 0.1+in->greed_multiplier);
                 in->price_multiplier = in->price_multiplier + (pm3(*gen));
             }
         }
