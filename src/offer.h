@@ -90,7 +90,7 @@ public:
     /*Modifies a row*/
     void modify_units(int id, int units) {
         int temp_arr = o.arr[id].units;
-        o.arr[id].units = units;
+        temp_arr = units;
         int temp_highestunits = 0;
         for(int i = 0;i < cmps;i++) {
             if(temp_highestunits < o.arr[i].units) temp_highestunits = o.arr[i].units;

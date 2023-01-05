@@ -23,7 +23,7 @@ public:
         {
             int tempUTP = (in->raw_materials / luxury_dependency);
             unitsToProduce = unitsToProduce > tempUTP ? tempUTP : unitsToProduce;
-            if (unitsToProduce < luxury_dependency)
+            if (unitsToProduce < luxury_dependency || in->raw_materials <= (unitsToProduce * luxury_dependency))
             {
                 unitsToProduce = 0;
             }
@@ -32,7 +32,9 @@ public:
                 in->raw_materials = in->raw_materials - (unitsToProduce * luxury_dependency);
             }
         }
-        double price = in->previous_price * (in->price_multiplier);
+        double price = (in->previous_price) * (in->price_multiplier);
+        if (unitsToProduce < 0)
+            unitsToProduce = 0;
         in->previous_units_produced = unitsToProduce;
         in->previous_price = price;
         o->add(in->product, price, unitsToProduce, in->id);
@@ -42,9 +44,9 @@ public:
     */
     static void demand(cmp *in, offer *o, default_random_engine *gen)
     {
-        if (((in->previous_units_produced * 0.05) + in->previous_units_produced) * luxury_dependency <= in->raw_materials && in->product == luxury_product_name)
+        if ((in->previous_units_produced) * luxury_dependency <= in->raw_materials && in->product == luxury_product_name)
         {
-            int utp = in->raw_materials - (((in->previous_units_produced * 0.05) + in->previous_units_produced) * luxury_dependency);
+            int utp = in->raw_materials - ((in->previous_units_produced) * luxury_dependency);
             pair<double, int> raw_materials_purchase = operation::buy(o, "food", utp, in->wealth, true);
             if (raw_materials_purchase.first / in->wealth > 0.5)
                 in->pmi = true;
@@ -54,36 +56,39 @@ public:
         for (int i = 0; i < emps_per_cmp; i++)
         {
             double energy = 0;
-            uniform_real_distribution<double> food_rand(origin_food_need, bound_food_need);
-            pair<double, int> food_purchase = operation::buy(o, "food", food_rand((*gen)), in->emps[i].wealth, true);
-            in->emps[i].wealth = in->emps[i].wealth - food_purchase.first;
-            energy = energy + (food_purchase.second * food_energy_multiplier);
-            if (food_purchase.first >= in->emps[i].last_salary)
+            if (in->emps[i].wealth > 0)
             {
-                // Nothing goes to rest
+                uniform_real_distribution<double> food_rand(origin_food_need, bound_food_need);
+                pair<double, int> food_purchase = operation::buy(o, "food", food_rand((*gen)), in->emps[i].wealth, true);
+                in->emps[i].wealth = in->emps[i].wealth - food_purchase.first;
+                energy = energy + (food_purchase.second * food_energy_multiplier);
+                if (food_purchase.first >= in->emps[i].last_salary)
+                {
+                    // Nothing goes to rest
+                }
+                else if (in->emps[i].last_salary - food_purchase.first > 0)
+                {
+                    double rm = in->emps[i].last_salary - food_purchase.first;
+                    pair<double, int> luxury_purchase = operation::buy(o, luxury_product_name, (1 - in->emps[i].y) * rm);
+                    in->emps[i].wealth = in->emps[i].wealth - luxury_purchase.first;
+                    rm = rm - luxury_purchase.first;
+                    energy = energy + (luxury_purchase.second * luxury_energy_multiplier);
+                    in->emps[i].wealth = in->emps[i].wealth + rm;
+                }
+                in->emps[i].energy = in->emps[i].energy + energy;
+                double FcpLastSalary = food_purchase.first / in->emps[i].last_salary;
+                if (FcpLastSalary > fear_sensitivity_bound)
+                {
+                    // Y factor increase
+                    in->emps[i].y = in->emps[i].y + ((FcpLastSalary * in->emps[i].fear));
+                }
+                if (FcpLastSalary <= fear_sensitivity_origin)
+                {
+                    // Y factor decrease
+                    in->emps[i].y = in->emps[i].y - ((FcpLastSalary * in->emps[i].fear));
+                }
+                in->emps[i].last_salary = 0;
             }
-            else
-            {
-                double rm = in->emps[i].last_salary - food_purchase.first;
-                pair<double, int> luxury_purchase = operation::buy(o, luxury_product_name, (1 - in->emps[i].y) * rm);
-                in->emps[i].wealth = in->emps[i].wealth - luxury_purchase.first;
-                rm = rm - luxury_purchase.first;
-                energy = energy + (luxury_purchase.second * luxury_energy_multiplier);
-                in->emps[i].wealth = in->emps[i].wealth + rm;
-            }
-            in->emps[i].energy = in->emps[i].energy + energy;
-            double FcpLastSalary = food_purchase.first / in->emps[i].last_salary;
-            if (FcpLastSalary > fear_sensitivity_bound)
-            {
-                // Y factor increase
-                in->emps[i].y = in->emps[i].y + ((FcpLastSalary * in->emps[i].fear));
-            }
-            if (FcpLastSalary <= fear_sensitivity_origin)
-            {
-                // Y factor decrease
-                in->emps[i].y = in->emps[i].y - ((FcpLastSalary * in->emps[i].fear));
-            }
-            in->emps[i].last_salary = 0;
         }
     }
     /*
@@ -98,15 +103,24 @@ public:
         if (QIN)
             cmp_offer.units = 0;
         double revenue = cmp_offer.price * (in->previous_units_produced - cmp_offer.units);
+        double factor = cmp_offer.units;
+        if (in->previous_units_produced > 0)
+            factor /= in->previous_units_produced;
+        else
+            factor = 0;
+        if (factor < 0)
+            factor = 0;
+        // cout << "factor : " << factor << endl;
         revenue = revenue - (revenue * taxrate);
-        if(revenue <= emps_per_cmp * in->salary) {
+        if (revenue <= emps_per_cmp * in->salary)
+        {
             in->wealth = in->wealth + revenue;
         }
         while (revenue <= emps_per_cmp * in->salary)
         {
             revenue = in->wealth;
             INS = true;
-            in->salary = in->salary - (in->salary * 0.001);
+            in->salary = in->salary - (in->salary * 0.01);
         }
         revenue = revenue - (emps_per_cmp * in->salary);
         for (int i = 0; i < emps_per_cmp; i++)
@@ -118,31 +132,30 @@ public:
             in->wealth = revenue;
         else if (revenue > 0)
             in->wealth = in->wealth + revenue;
-
-        uniform_real_distribution<double> pm(0.001, in->greed_multiplier - 0.1);
-        uniform_real_distribution<double> pm2(0.01, 0.75 - in->greed_multiplier);
-        if (in->pmi)
-            in->price_multiplier = in->price_multiplier + (pm(*gen));
-        else if (QIN)
-            in->price_multiplier = in->price_multiplier + (pm(*gen));
-        else if(INS)
-            in->price_multiplier = in->price_multiplier + (pm(*gen));
-        if (RPD)
+        uniform_real_distribution<double> pm(in->greed_multiplier / 5, in->greed_multiplier);
+        uniform_real_distribution<double> pm2(0, factor);
+        if (factor == 1)
             in->price_multiplier = in->price_multiplier - (pm2(*gen));
-        if(in->price_multiplier <= 0) in->price_multiplier = (((int) in->price_multiplier) - in->price_multiplier);
+        else if ((in->pmi || QIN || INS) && in->previous_units_produced > 0)
+            in->price_multiplier = in->price_multiplier + (pm(*gen));
+        else if (RPD)
+            in->price_multiplier = in->price_multiplier - (pm2(*gen));
+        if (in->price_multiplier <= 0) in->price_multiplier = 1.01;
 
         if (!INS)
         {
             uniform_real_distribution<double> roulette(0.0, 1.0);
             if (roulette(*gen) < in->greed_multiplier)
             {
-                uniform_real_distribution<double> sm(0.001,in->greed_multiplier/2);
+                uniform_real_distribution<double> sm(0, 0.05);
                 in->salary = in->salary - (in->salary * sm(*gen));
+                in->price_multiplier = in->price_multiplier + (pm(*gen));
             }
             else
             {
-                uniform_real_distribution<double> sm2(0.01, 0.35);
+                uniform_real_distribution<double> sm2(0.01, 0.05);
                 in->salary = in->salary + (sm2(*gen) * in->salary);
+                in->price_multiplier = in->price_multiplier - (pm(*gen));
             }
         }
     }
@@ -251,7 +264,7 @@ public:
             for (int i = 0; i < cmps; i++)
             {
                 row temp_row = o->get(i);
-                if (temp_row.units > 0)
+                if (temp_row.units > 0 && temp_row.product == product)
                 {
                     int temp = ts / temp_row.price;
                     int purchaseable_units = temp > temp_row.units ? temp_row.units : temp;
